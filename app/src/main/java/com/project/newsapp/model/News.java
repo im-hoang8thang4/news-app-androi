@@ -92,7 +92,6 @@ public class News {
         this.newsPublishedDate = newsPublishedDate;
     }
 
-    //Added for Child JSON Object
     public class Source {
         @SerializedName("name")
         private String sourceName;
@@ -106,7 +105,7 @@ public class News {
         }
     }
 
-    //Image Binding - I didn't write newsviewmodel for just this method
+    //Image Binding
     @BindingAdapter({"bind:imgUrl"})
     public static void setImage(ImageView imageView, String imgUrl) {
         Glide.with(imageView.getContext()).load(imgUrl).into(imageView);

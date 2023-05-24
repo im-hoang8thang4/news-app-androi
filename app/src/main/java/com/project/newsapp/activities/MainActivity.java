@@ -34,13 +34,11 @@ import com.project.newsapp.clicklisteners.AdapterItemClickListener;
 import com.project.newsapp.clicklisteners.NewsDialogClickListeners;
 import com.project.newsapp.databinding.NewsDialogBinding;
 import com.project.newsapp.model.News;
-import com.project.newsapp.utils.LocaleHelper;
 import com.project.newsapp.utils.Util;
 import com.project.newsapp.viewmodels.MainViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner, A
     AdapterListNews adapterListNews;
     List<News> newsList;
 
-    private String firstControl = "firstControl";
     private String countryPositionPref = "countryPositionPref";
     SharedPreferences pref;
     private String[] countrys;
@@ -68,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner, A
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pref = getApplicationContext().getSharedPreferences(Util.APP_NAME, MODE_PRIVATE);
-        languageControl();
         setContentView(R.layout.activity_main);
         context = this;
         ButterKnife.bind(this);
@@ -90,27 +86,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner, A
         viewModel.getNewsLiveData().observe(context, newsListUpdateObserver);
         viewModel.setApiKey(getString(R.string.news_api_key));
         viewModel.setCountryCode(pref.getString(Util.COUNTRY_PREF, "tr"));
-
-
-    }
-
-    private void languageControl() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N && !pref.getBoolean(firstControl, false)) {
-            Locale primaryLocale = getResources().getConfiguration().getLocales().get(0);
-            LocaleHelper.setLocale(MainActivity.this, primaryLocale.getLanguage());
-            int position = getLanguagePosition(primaryLocale.getLanguage());
-            pref.edit().putInt(countryPositionPref, position).apply();
-            pref.edit().putBoolean(firstControl, true).apply();
-            recreate();
-        }
-    }
-
-    private int getLanguagePosition(String displayLanguage) {
-        String[] codes = getResources().getStringArray(R.array.countrysCodes);
-        for (int i = 0; i < codes.length; i++) {
-            if (codes[i].equals(displayLanguage)) return i;
-        }
-        return 0;
     }
 
     private void initToolbar() {
@@ -131,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner, A
                     int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                     pref.edit().putInt(countryPositionPref, selectedPosition).apply();
                     pref.edit().putString(Util.COUNTRY_PREF, getResources().getStringArray(R.array.countrysCodes)[selectedPosition]).apply();
-                    LocaleHelper.setLocale(MainActivity.this, getResources().getStringArray(R.array.countrysCodes)[selectedPosition]);
                     recreate();
                     dialog.dismiss();
                 })
@@ -190,11 +164,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner, A
         }
     };
 
-
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(LocaleHelper.onAttach(newBase));
-    }
 
     @Override
     public void onNewsItemClick(News news) {
